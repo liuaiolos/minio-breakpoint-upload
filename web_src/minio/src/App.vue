@@ -23,7 +23,7 @@
   import axios from 'axios'
   import qs from 'qs'
 
-  const chunkSize = 1024 * 1024 * 64;
+  const chunkSize = 1024 * 1024 * 8;
   const md5ChunkSize = 1024 * 1024 * 1;
 
   export default {
@@ -31,7 +31,7 @@
       return {
         progress: 0,
         status: '初始状态',
-        urlPrex: 'http://192.168.207.34:39988/minio',
+        urlPrex: 'http://localhost:39988/minio',
       }
     },
     created() {
@@ -43,6 +43,7 @@
       })
     },
     methods: {
+
         onFileAdded(file) {
           this.progress=0;
           this.status='初始状态';
@@ -280,7 +281,14 @@
                 let end = ((start + md5ChunkSize) >= file.size) ? file.size : start + md5ChunkSize;
 
                 fileReader.readAsArrayBuffer(blobSlice.call(file.file, start, end));
-            }
+            };
+            function loadNext() {
+            let start = currentChunk * chunkSize;
+            let end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+
+            fileReader.readAsArrayBuffer(blobSlice.call(file.file, start, end));
+          };
+
         },
         async computeMD5Success(file) {
             await this.getSuccessChunks(file);
